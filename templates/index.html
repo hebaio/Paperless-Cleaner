@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to Paperless Cleaner</h1>
+    <p class="lead">This tool helps you merge duplicate Correspondents and Document Types in your Paperless-ngx instance.</p>
+    <hr class="my-4">
+    <p>Select a category to start cleaning:</p>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('correspondents') }}" role="button">Manage Correspondents</a>
+    <a class="btn btn-secondary btn-lg" href="{{ url_for('document_types') }}" role="button">Manage Document Types</a>
+</div>
+{% endblock %}

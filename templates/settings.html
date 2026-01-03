@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Settings</h2>
+<form method="POST">
+    <div class="mb-3">
+        <label for="api_url" class="form-label">Paperless API URL</label>
+        <input type="text" class="form-control" id="api_url" name="api_url" value="{{ settings.api_url }}" placeholder="http://192.168.1.100:8000" required>
+        <div class="form-text">The base URL of your Paperless-ngx instance.</div>
+    </div>
+    <div class="mb-3">
+        <label for="api_token" class="form-label">API Token</label>
+        <input type="password" class="form-control" id="api_token" name="api_token" value="{{ settings.api_token }}" required>
+        <div class="form-text">Create a token in your Paperless admin area.</div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Settings</button>
+</form>
+{% endblock %}
