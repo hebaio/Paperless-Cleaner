@@ -78,7 +78,7 @@ class PaperlessClient:
         response = requests.get(url, headers=self.headers, params=params)
         response.raise_for_status()
         data = response.json()
-        return [doc.get('title', 'Unknown') for doc in data.get('results', [])]
+        return [{'id': doc.get('id'), 'title': doc.get('title', 'Unknown')} for doc in data.get('results', [])]
 
     def bulk_edit_correspondent(self, document_ids: list[int], new_correspondent_id: int):
         if not document_ids:

@@ -131,15 +131,19 @@ def preview_documents(item_type: str, item_id: int):
     if not client: return jsonify({'error': 'Not connected'}), 401
 
     try:
-        titles = client.get_document_titles(item_type, item_id, limit=5)
+        docs = client.get_document_titles(item_type, item_id, limit=5)
         # Truncate titles
-        truncated_titles = []
-        for t in titles:
-            if len(t) > 50:
-                truncated_titles.append(t[:47] + '...')
-            else:
-                truncated_titles.append(t)
-        return jsonify({'titles': truncated_titles})
+        processed_docs = []
+        for doc in docs:
+            title = doc['title']
+            if len(title) > 50:
+                title = title[:47] + '...'
+            processed_docs.append({'id': doc['id'], 'title': title})
+            
+        return jsonify({
+            'documents': processed_docs,
+            'base_url': client.api_url
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
