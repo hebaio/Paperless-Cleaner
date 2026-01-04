@@ -23,6 +23,7 @@
                 <th scope="col">Name</th>
                 <th scope="col">ID</th>
                 <th scope="col">Document Count</th>
+                <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -41,13 +42,93 @@
                 <td>{{ item.name }}</td>
                 <td>{{ item.id }}</td>
                 <td>{{ item.document_count }}</td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-info text-white" onclick="showPreview('{{ type }}', {{ item.id }}, '{{ item.name|replace("'", "\\'") }}')">Preview</button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete('{{ type }}', {{ item.id }}, '{{ item.name|replace("'", "\\'") }}')">Delete</button>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </form>
 
+<!-- Delete Form -->
+<form id="deleteForm" method="POST" action="">
+</form>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="previewModalLabel">Document Preview</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="previewLoading" class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <ul id="previewList" class="list-group">
+        </ul>
+        <div id="previewError" class="alert alert-danger d-none"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+function confirmDelete(type, id, name) {
+    if (confirm('Are you sure you want to delete "' + name + '"? This cannot be undone.')) {
+        var form = document.getElementById('deleteForm');
+        form.action = '/delete/' + type + '/' + id;
+        form.submit();
+    }
+}
+
+function showPreview(type, id, name) {
+    var modal = new bootstrap.Modal(document.getElementById('previewModal'));
+    document.getElementById('previewModalLabel').textContent = 'Documents for: ' + name;
+    document.getElementById('previewList').innerHTML = '';
+    document.getElementById('previewLoading').classList.remove('d-none');
+    document.getElementById('previewError').classList.add('d-none');
+    
+    modal.show();
+
+    fetch('/api/preview/' + type + '/' + id)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('previewLoading').classList.add('d-none');
+            if (data.error) {
+                var errorDiv = document.getElementById('previewError');
+                errorDiv.textContent = data.error;
+                errorDiv.classList.remove('d-none');
+            } else {
+                var list = document.getElementById('previewList');
+                if (data.titles.length === 0) {
+                    list.innerHTML = '<li class="list-group-item text-muted">No documents found.</li>';
+                } else {
+                    data.titles.forEach(title => {
+                        var li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        li.textContent = title;
+                        list.appendChild(li);
+                    });
+                }
+            }
+        })
+        .catch(error => {
+            document.getElementById('previewLoading').classList.add('d-none');
+            var errorDiv = document.getElementById('previewError');
+            errorDiv.textContent = 'Error fetching preview.';
+            errorDiv.classList.remove('d-none');
+        });
+}
+
 document.getElementById('searchInput').addEventListener('keyup', function() {
     var input = document.getElementById('searchInput');
     var filter = input.value.toLowerCase();

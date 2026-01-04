@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from config import load_settings, save_settings
 from paperless_client import PaperlessClient
 
@@ -105,6 +105,43 @@ def merge():
         flash(f'Error during merge: {e}', 'danger')
 
     return redirect(url_for('correspondents' if item_type == 'correspondent' else 'document_types'))
+
+@app.route('/delete/<item_type>/<int:item_id>', methods=['POST'])
+def delete_item(item_type: str, item_id: int):
+    client = get_client()
+    if not client: return redirect(url_for('settings'))
+
+    try:
+        if item_type == 'correspondent':
+            client.delete_correspondent(item_id)
+            flash('Correspondent deleted.', 'success')
+        elif item_type == 'document_type':
+            client.delete_document_type(item_id)
+            flash('Document Type deleted.', 'success')
+        else:
+            flash('Invalid item type.', 'danger')
+    except Exception as e:
+        flash(f'Error deleting item: {e}', 'danger')
+
+    return redirect(url_for('correspondents' if item_type == 'correspondent' else 'document_types'))
+
+@app.route('/api/preview/<item_type>/<int:item_id>')
+def preview_documents(item_type: str, item_id: int):
+    client = get_client()
+    if not client: return jsonify({'error': 'Not connected'}), 401
+
+    try:
+        titles = client.get_document_titles(item_type, item_id, limit=5)
+        # Truncate titles
+        truncated_titles = []
+        for t in titles:
+            if len(t) > 50:
+                truncated_titles.append(t[:47] + '...')
+            else:
+                truncated_titles.append(t)
+        return jsonify({'titles': truncated_titles})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
