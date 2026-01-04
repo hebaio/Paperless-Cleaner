@@ -67,18 +67,15 @@ class PaperlessClient:
             params = {}
         return results
 
-    def get_document_titles(self, item_type: str, item_id: int, limit:int = 5) -> list[str]:
-        url = self._get_full_url('documents')
-        params = {'page_size': limit}
+    def get_document_titles(self, item_type, item_id):
         if item_type == 'correspondent':
-            params['correspondent__id'] = item_id
+            docs = self.get_documents_by_correspondent(item_id)
         elif item_type == 'document_type':
-            params['document_type__id'] = item_id
+            docs = self.get_documents_by_document_type(item_id)
+        else:
+            return []
         
-        response = requests.get(url, headers=self.headers, params=params)
-        response.raise_for_status()
-        data = response.json()
-        return [{'id': doc.get('id'), 'title': doc.get('title', 'Unknown')} for doc in data.get('results', [])]
+        return [{'id': doc.get('id'), 'title': doc.get('title', 'Unknown')} for doc in docs]
 
     def bulk_edit_correspondent(self, document_ids: list[int], new_correspondent_id: int):
         if not document_ids:

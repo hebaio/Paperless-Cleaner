@@ -131,7 +131,7 @@ def preview_documents(item_type: str, item_id: int):
     if not client: return jsonify({'error': 'Not connected'}), 401
 
     try:
-        docs = client.get_document_titles(item_type, item_id, limit=5)
+        docs = client.get_document_titles(item_type, item_id)
         # Truncate titles
         processed_docs = []
         for doc in docs:
