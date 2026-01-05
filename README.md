@@ -1,6 +1,7 @@
 # Paperless Cleaner
 
 A web-based tool to merge duplicate Correspondents and Document Types in Paperless-ngx.
+This is designed to be a very simple cleaning tools to remove duplicated entries created by automated tools like Paperless-AI. 
 
 ## Features
 - Connects to your Paperless-ngx instance via API.
@@ -23,6 +24,8 @@ A web-based tool to merge duplicate Correspondents and Document Types in Paperle
 
 ## Usage
 
+1. It is highly recommended to create a backup of your paperless-ngx instance (https://docs.paperless-ngx.com/administration/#backup) or using the document exporter (https://docs.paperless-ngx.com/administration/#exporter)before using paperless-cleaner. 
+
 1. Run the application:
    ```bash
    python app.py
@@ -30,7 +33,7 @@ A web-based tool to merge duplicate Correspondents and Document Types in Paperle
 
 2. Open your browser and navigate to `http://localhost:5000`.
 
-3. Go to **Settings** and enter your Paperless-ngx API URL (e.g., `http://192.168.178.42:30070`) and your API Token.
+3. Go to **Settings** and enter your Paperless-ngx API URL and your API Token.
 
 4. Go to **Correspondents** or **Document Types** to start merging.
 
