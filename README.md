@@ -33,9 +33,10 @@ This is designed to be a very simple cleaning tools to remove duplicated entries
 
 2. Open your browser and navigate to `http://localhost:5000`.
 
-3. Go to **Settings** and enter your Paperless-ngx API URL and your API Token.
+3. Go to **Settings** and enter your Paperless-ngx API URL and your API Token. Create an API token by clicking on 'My Profile' in the Web UI of your paperless-ngx instance. 
 
 4. Go to **Correspondents** or **Document Types** to start merging.
+
 
 ## How to Merge
 
