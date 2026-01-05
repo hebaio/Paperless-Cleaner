@@ -28,7 +28,7 @@ This is designed to be a very simple cleaning tools to remove duplicated entries
 
 1. Run the application:
    ```bash
-   python app.py
+   python src/app.py
    ```
 
 2. Open your browser and navigate to `http://localhost:5000`.
