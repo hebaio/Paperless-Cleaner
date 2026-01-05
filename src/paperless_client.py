@@ -13,6 +13,7 @@ class PaperlessClient:
         }
 
     def _get_full_url(self, endpoint: str) -> str:
+        
         return f"{self.api_url}/api/{endpoint}/"
 
     def check_connection(self):
