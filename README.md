@@ -24,7 +24,7 @@ This is designed to be a very simple cleaning tools to remove duplicated entries
 
 ## Usage
 
-1. It is highly recommended to create a backup of your paperless-ngx instance (https://docs.paperless-ngx.com/administration/#backup) or using the document exporter (https://docs.paperless-ngx.com/administration/#exporter)before using paperless-cleaner. 
+1. It is highly recommended to create a backup of your paperless-ngx instance (https://docs.paperless-ngx.com/administration/#backup) or using the document exporter (https://docs.paperless-ngx.com/administration/#exporter) before using paperless-cleaner. 
 
 1. Run the application:
    ```bash
