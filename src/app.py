@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, Response
 from config import load_settings, save_settings
 from paperless_client import PaperlessClient
+from similarity import find_similar_groups
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey' # Change this for production
@@ -116,6 +117,39 @@ def document_types() -> Response:
     except Exception as e:
         flash(f'Error fetching document types: {e}', 'danger')
         return redirect(url_for('index'))
+
+@app.route('/similar/<item_type>')
+def similar(item_type: str) -> Response:
+    """List groups of similar items for probable merging.
+
+    Args:
+        item_type (str): Either 'correspondent' or 'document_type'
+
+    Returns:
+        Response: Rendered template with groups of similar items
+    """
+    client = get_client()
+    if not client: return redirect(url_for('settings'))
+    
+    try:
+        if item_type == 'correspondent':
+            items = client.get_correspondents()
+            title = 'Correspondents'
+        elif item_type == 'document_type':
+            items = client.get_document_types()
+            title = 'Document Types'
+        else:
+            flash('Invalid item type', 'danger')
+            return redirect(url_for('index'))
+            
+        groups = find_similar_groups(items)
+        # Sort groups by size (descending) then by name of first item
+        groups.sort(key=lambda g: (-len(g), g[0]['name'].lower()))
+        
+        return render_template('similar.html', groups=groups, type=item_type, title=f'Similar {title}')
+    except Exception as e:
+        flash(f'Error finding similar items: {e}', 'danger')
+        return redirect(url_for(f'{item_type}s'))
 
 @app.route('/merge', methods=['POST'])
 def merge() -> Response:

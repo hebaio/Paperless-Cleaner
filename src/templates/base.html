@@ -21,6 +21,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('document_types') }}">Document Types</a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownSimilar" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Similar
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownSimilar">
+                            <li><a class="dropdown-item" href="{{ url_for('similar', item_type='correspondent') }}">Correspondents</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('similar', item_type='document_type') }}">Document Types</a></li>
+                        </ul>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
                     </li>

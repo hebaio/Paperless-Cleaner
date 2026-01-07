@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{{ title }}</h2>
+<p class="text-muted">Groups of items with similar names that might be duplicates.</p>
+
+{% if not groups %}
+    <div class="alert alert-info">No similar items found with current threshold.</div>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Back Home</a>
+{% else %}
+
+    {% for group in groups %}
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <strong>Group {{ loop.index }}</strong>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('merge') }}" onsubmit="return confirm('Merge selected items into the target?');">
+                <input type="hidden" name="type" value="{{ type }}">
+                <table class="table table-sm table-borderless align-middle mb-0">
+                    <thead>
+                        <tr>
+                             <th scope="col" style="width: 5%">Merge</th>
+                             <th scope="col" style="width: 5%">Target</th>
+                             <th scope="col">Name</th>
+                             <th scope="col">ID</th>
+                             <th scope="col">Count</th>
+                             <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in group %}
+                        <tr>
+                            <td>
+                                <input class="form-check-input" type="checkbox" name="merge_ids" value="{{ item.id }}" checked>
+                            </td>
+                            <td>
+                                <input class="form-check-input" type="radio" name="target_id" value="{{ item.id }}" {% if loop.first %}checked{% endif %}>
+                            </td>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.id }}</td>
+                            <td>
+                                {{ item.document_count }}
+                                {% if item.document_count > 0 %}
+                                <span class="badge bg-secondary rounded-pill">{{ item.document_count }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-info" onclick="showPreview('{{ type }}', {{ item.id }}, '{{ item.name|replace("'", "\\'") }}')">Preview</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-sm btn-danger">Merge Group</button>
+                    <small class="text-muted ms-2">Select one target to keep. The others will be merged into it and deleted.</small>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Preview Modal -> reusing the same structure as merge.html, could be partial -->
+    <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel">Documents for <span id="previewName"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="previewLoading" class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <div id="previewError" class="alert alert-danger d-none"></div>
+                    <ul class="list-group list-group-flush" id="previewList"></ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function showPreview(type, id, name) {
+        var modal = new bootstrap.Modal(document.getElementById('previewModal'));
+        document.getElementById('previewName').textContent = name;
+        document.getElementById('previewList').innerHTML = '';
+        document.getElementById('previewError').classList.add('d-none');
+        document.getElementById('previewLoading').classList.remove('d-none');
+        
+        modal.show();
+
+        fetch('/api/preview/' + type + '/' + id)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('previewLoading').classList.add('d-none');
+                if (data.error) {
+                    var errorDiv = document.getElementById('previewError');
+                    errorDiv.textContent = data.error;
+                    errorDiv.classList.remove('d-none');
+                } else {
+                    var list = document.getElementById('previewList');
+                    if (data.documents.length === 0) {
+                        list.innerHTML = '<li class="list-group-item text-muted">No documents found.</li>';
+                    } else {
+                        data.documents.forEach(doc => {
+                            var li = document.createElement('li');
+                            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                            
+                            var titleSpan = document.createElement('span');
+                            titleSpan.textContent = doc.title;
+                            li.appendChild(titleSpan);
+                            
+                             if (data.base_url) {
+                                var link = document.createElement('a');
+                                link.href = data.base_url + '/documents/' + doc.id;
+                                link.target = '_blank';
+                                link.className = 'btn btn-sm btn-outline-primary';
+                                link.textContent = 'Open';
+                                li.appendChild(link);
+                            }
+
+                            list.appendChild(li);
+                        });
+                    }
+                }
+            })
+            .catch(error => {
+                document.getElementById('previewLoading').classList.add('d-none');
+                var errorDiv = document.getElementById('previewError');
+                errorDiv.textContent = 'Error fetching preview.';
+                errorDiv.classList.remove('d-none');
+            });
+    }
+    </script>
+{% endif %}
+{% endblock %}
