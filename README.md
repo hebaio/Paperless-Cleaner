@@ -6,6 +6,7 @@ This is designed to be a very simple cleaning tools to remove duplicated entries
 ## Features
 - Connects to your Paperless-ngx instance via API.
 - Lists all Correspondents and Document Types.
+- Finds and groups similar items automatically.
 - Allows selecting multiple items to merge into a single target.
 - Updates all affected documents to the new target.
 - Deletes the old (merged) items.
@@ -45,3 +46,10 @@ This is designed to be a very simple cleaning tools to remove duplicated entries
 3. Click **Merge Selected into Target**.
 
 **Warning:** This action cannot be undone. The source items will be deleted after their documents are moved to the target.
+
+## Find Similar Items
+
+1. Click on **Similar** in the navigation bar.
+2. Choose **Correspondents** or **Document Types**.
+3. The tool will group items with similar names (e.g., "Amazon" and "Amazon DE").
+4. Review the groups and merge them directly from this view.
