@@ -146,7 +146,7 @@ def similar(item_type: str) -> Response:
         # Sort groups by size (descending) then by name of first item
         groups.sort(key=lambda g: (-len(g), g[0]['name'].lower()))
         
-        return render_template('similar.html', groups=groups, type=item_type, title=f'Similar {title}')
+        return render_template('similar.html', groups=groups, type=item_type, title=f'Similar {title}', all_items=items)
     except Exception as e:
         flash(f'Error finding similar items: {e}', 'danger')
         return redirect(url_for(f'{item_type}s'))
@@ -171,11 +171,16 @@ def merge() -> Response:
     item_type = request.form.get('type')
     target_id = request.form.get('target_id')
     merge_ids = request.form.getlist('merge_ids')
+    
+    # Determine redirect destination
+    next_url = request.form.get('next')
+    default_url = url_for('correspondents' if item_type == 'correspondent' else 'document_types')
+    redirect_dest = next_url if next_url else default_url
 
     # Basic validation, ensure we have a target and at least one source
     if not target_id or not merge_ids:
         flash('Please select a target and at least one item to merge.', 'warning')
-        return redirect(url_for('correspondents' if item_type == 'correspondent' else 'document_types'))
+        return redirect(redirect_dest)
 
     target_id = int(target_id)
     # Exclude the chosen target from the list of IDs to merge
@@ -183,7 +188,7 @@ def merge() -> Response:
 
     if not merge_ids:
         flash('No items to merge (target was excluded).', 'warning')
-        return redirect(url_for('correspondents' if item_type == 'correspondent' else 'document_types'))
+        return redirect(redirect_dest)
 
     try:
         count = 0
@@ -211,7 +216,7 @@ def merge() -> Response:
         flash(f'Error during merge: {e}', 'danger')
 
     # Redirect back to the relevant listing page
-    return redirect(url_for('correspondents' if item_type == 'correspondent' else 'document_types'))
+    return redirect(redirect_dest)
 
 @app.route('/delete/<item_type>/<int:item_id>', methods=['POST'])
 def delete_item(item_type: str, item_id: int) -> Response:
