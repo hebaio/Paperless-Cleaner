@@ -19,6 +19,8 @@ The tool includes an optional LLM-based similarity detection feature. This allow
 - Acronyms vs full names
 - Formatting differences
 
+#### Depending on the LLM used, getting a Response from the LLM can take multiple minutes. 
+
 ### Configuration
 
 To use the LLM features:

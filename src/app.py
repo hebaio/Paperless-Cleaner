@@ -231,16 +231,18 @@ def merge() -> Response:
                 client.delete_document_type(mid)
             count += 1
 
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': True, 'message': f'Successfully merged {count} items.'})
+
         flash(f'Successfully merged {count} items.', 'success')
     except Exception as e:
-        # Surface API or client errors to the user
-        flash(f'Error during merge: {e}', 'danger')
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({'success': False, 'message': str(e)}), 500
+        
+        # Surface API or client errors to the user
+        flash(f'Error during merge: {e}', 'danger')
 
     # Redirect back to the relevant listing page
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return jsonify({'success': True, 'message': f'Successfully merged {count} items.'})
     return redirect(redirect_dest)
 
 @app.route('/delete/<item_type>/<int:item_id>', methods=['POST'])
