@@ -6,10 +6,35 @@ This is designed to be a very simple cleaning tools to remove duplicated entries
 ## Features
 - Connects to your Paperless-ngx instance via API.
 - Lists all Correspondents and Document Types.
-- Finds and groups similar items automatically.
+- Finds and groups similar items automatically (Basic Algorithm & LLM).
 - Allows selecting multiple items to merge into a single target.
 - Updates all affected documents to the new target.
 - Deletes the old (merged) items.
+
+## LLM Integration
+
+The tool includes an optional LLM-based similarity detection feature. This allows for smarter grouping of items by identifying:
+- Typos (e.g., "Amazn" vs "Amazon")
+- Variations (e.g., "Amazon.com" vs "Amazon DE")
+- Acronyms vs full names
+- Formatting differences
+
+### Configuration
+
+To use the LLM features:
+1. Go to **Settings**.
+2. Enable the **LLM Integration** checkbox.
+3. Provide your LLM provider details:
+    - **API Base URL**: The base URL of your OpenAI-compatible API (e.g., OpenAI, Google, Perplexity, Azure, LocalAI, vLLM).
+    - **API Key**: Your API key.
+    - **Model**: The model name to use (e.g., `gpt-4o`, `llama3`, `gemini-2.5-flash`).
+4. Save the settings.
+
+Once enabled, you will see an "LLM Analysis" option when viewing similar items.
+
+Tested with:  
+- Google (Gemini 2.5 Flash / Gemini 3 Flash)
+- Perplexity (Sonar)
 
 ## Requirements
 - Python 3.14 (or compatible 3.x)
