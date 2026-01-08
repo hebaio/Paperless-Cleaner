@@ -197,6 +197,8 @@ def merge() -> Response:
     # Basic validation, ensure we have a target and at least one source
     if not target_id or not merge_ids:
         flash('Please select a target and at least one item to merge.', 'warning')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+             return jsonify({'success': False, 'message': 'Please select a target and at least one item to merge.'}), 400
         return redirect(redirect_dest)
 
     target_id = int(target_id)
@@ -205,6 +207,8 @@ def merge() -> Response:
 
     if not merge_ids:
         flash('No items to merge (target was excluded).', 'warning')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+             return jsonify({'success': False, 'message': 'No items to merge (target was excluded).'}), 400
         return redirect(redirect_dest)
 
     try:
@@ -231,8 +235,12 @@ def merge() -> Response:
     except Exception as e:
         # Surface API or client errors to the user
         flash(f'Error during merge: {e}', 'danger')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'message': str(e)}), 500
 
     # Redirect back to the relevant listing page
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'success': True, 'message': f'Successfully merged {count} items.'})
     return redirect(redirect_dest)
 
 @app.route('/delete/<item_type>/<int:item_id>', methods=['POST'])
