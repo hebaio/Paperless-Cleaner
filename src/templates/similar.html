@@ -10,7 +10,20 @@
     }
 </style>
 
-<h2>{{ title }}</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{{ title }}</h2>
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('similar', item_type=type, method='algo') }}" class="btn btn-outline-primary {% if method == 'algo' %}active{% endif %}">Basic Algo</a>
+        {% if llm_enabled == 'true' %}
+        <a href="{{ url_for('similar', item_type=type, method='llm') }}" class="btn btn-outline-primary {% if method == 'llm' %}active{% endif %}">LLM Analysis</a>
+        {% else %}
+        <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="Enable LLM in Settings">
+            <button class="btn btn-outline-secondary" disabled>LLM Analysis</button>
+        </span>
+        {% endif %}
+    </div>
+</div>
+
 <p class="text-muted">Groups of items with similar names that might be duplicates.</p>
 
 {% if not groups %}
@@ -28,7 +41,7 @@
             <div class="card-body">
                 <form method="POST" action="{{ url_for('merge') }}" onsubmit="return confirm('Merge selected items into the target?');">
                 <input type="hidden" name="type" value="{{ type }}">
-                <input type="hidden" name="next" value="{{ url_for('similar', item_type=type) }}">
+                <input type="hidden" name="next" value="{{ url_for('similar', item_type=type, method=method) }}">
                 <table class="table table-sm table-borderless align-middle mb-0">
                     <thead>
                         <tr>

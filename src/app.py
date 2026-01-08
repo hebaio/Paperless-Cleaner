@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from config import load_settings, save_settings
 from paperless_client import PaperlessClient
 from similarity import find_similar_groups
+from similarity_llm import find_similar_groups_llm
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey' # Change this for production
@@ -66,7 +67,14 @@ def settings():
     if request.method == 'POST':
         api_url = request.form.get('api_url')
         api_token = request.form.get('api_token')
-        save_settings(api_url, api_token)
+        
+        # LLM Settings
+        llm_enabled = 'true' if request.form.get('llm_enabled') == 'true' else 'false'
+        llm_api_base = request.form.get('llm_api_base', '')
+        llm_api_key = request.form.get('llm_api_key', '')
+        llm_model = request.form.get('llm_model', '')
+
+        save_settings(api_url, api_token, llm_enabled, llm_api_base, llm_api_key, llm_model)
         flash('Settings saved.', 'success')
         return redirect(url_for('index'))
 
@@ -142,11 +150,20 @@ def similar(item_type: str) -> Response:
             flash('Invalid item type', 'danger')
             return redirect(url_for('index'))
             
-        groups = find_similar_groups(items)
+        settings = load_settings()
+        method = request.args.get('method', 'algo')
+        
+        if method == 'llm' and settings.get('llm_enabled') == 'true':
+            groups = find_similar_groups_llm(items, settings)
+            title = f'{title} (LLM)'
+        else:
+            groups = find_similar_groups(items)
+            title = f'{title} (Basic)'
+
         # Sort groups by size (descending) then by name of first item
         groups.sort(key=lambda g: (-len(g), g[0]['name'].lower()))
         
-        return render_template('similar.html', groups=groups, type=item_type, title=f'Similar {title}', all_items=items)
+        return render_template('similar.html', groups=groups, type=item_type, title=f'Similar {title}', all_items=items, method=method, llm_enabled=settings.get('llm_enabled'))
     except Exception as e:
         flash(f'Error finding similar items: {e}', 'danger')
         return redirect(url_for(f'{item_type}s'))

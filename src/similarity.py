@@ -1,4 +1,7 @@
 from difflib import SequenceMatcher
+import requests
+import json
+import logging
 
 def find_similar_groups(items: list[dict], threshold: float = 0.8) -> list[list[dict]]:
     """
